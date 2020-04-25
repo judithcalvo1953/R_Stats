@@ -1,0 +1,148 @@
+PART ONE: MPG REGRESSION
+
+
+Statistical testing results:
+
+Multiple Linear Regression Call:
+lm(formula = mpg ~ len + wt + angle + clearance + AWD, data = MechaCar_table)
+
+Coefficients:
+(Intercept)          len           wt        angle    clearance          AWD  
+ -1.040e+02    6.267e+00    1.245e-03    6.877e-02    3.546e+00   -3.411e+00  
+
+
+Call:
+lm(formula = mpg ~ len + wt + angle + clearance + AWD, data = MechaCar_table)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-19.4701  -4.4994  -0.0692   5.4433  18.5849 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -1.040e+02  1.585e+01  -6.559 5.08e-08 ***
+len          6.267e+00  6.553e-01   9.563 2.60e-12 ***
+wt           1.245e-03  6.890e-04   1.807   0.0776 .  
+angle        6.877e-02  6.653e-02   1.034   0.3069    
+clearance    3.546e+00  5.412e-01   6.551 5.21e-08 ***
+AWD         -3.411e+00  2.535e+00  -1.346   0.1852    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 8.774 on 44 degrees of freedom
+Multiple R-squared:  0.7149,	Adjusted R-squared:  0.6825 
+F-statistic: 22.07 on 5 and 44 DF,  p-value: 5.35e-11
+
+REPORT:
+--the above model showed that car length, and ground clearance were the only variables that contributed significantly to the variance in MPG.
+--this is seen by the coefficient of .63 (6.267e+00) for car length and .35 ( 3.546e+00) for ground clearance.  Both p-value <0.0001.
+--the R-squared value is .71, meaning the model contributes to 71% of the variance in MPG. Another way of explaining it is that it is probability metric to
+  determine the likelihood that future data points will fit this model.
+
+--See also: Bruce, P and Bruce A (2017). "Practical Statistics for Data Scientists", O'Reilly Press, for an explanation of R-squared, also referred to as the Coefficient of Determination.
+--The linear model predicts mpg of MechCar effectively as it meets the rule of thumb of 70% mentioned in the module.
+
+
+To further explore this data, and create a more parsimonious model, I created the second model removed variables not statistically significant in the first model; there was a small decrement in R-squared
+
+Call:
+lm(formula = mpg ~ len + clearance, data = MechaCar_table)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-17.493  -7.705   1.344   6.642  18.500 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -91.5573    13.9649  -6.556 3.86e-08 ***
+len           6.0811     0.6732   9.033 7.68e-12 ***
+clearance     3.5669     0.5401   6.604 3.26e-08 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 9.078 on 47 degrees of freedom
+Multiple R-squared:  0.674,	Adjusted R-squared:  0.6601 
+F-statistic: 48.59 on 2 and 47 DF,  p-value: 3.637e-12
+
+Part 2: SUSPENSION COIL ANALYSIS
+
+
+#Next challenge question--suspension coil analysis
+suspension <- read.csv('Suspension_Coil.csv', check.names = F,stringsAsFactors = F)
+
+#both by Lot and all measures
+summarize_coil <- suspension %>% group_by(Manufacturing_Lot) %>% summarize(Mean_PSI=mean(PSI), Median_PSI=median(PSI), SD_PSI = sd(PSI), Var_PSI =var(PSI),Num_items=n())
+summarize_all_coil <- suspension %>% summarize(Mean_PSI=mean(PSI), Median_PSI=median(PSI), SD_PSI = sd(PSI), Var_PSI =var(PSI),Num_items=n())
+---The variance of this data supports that the variance does not exceed 100 PSI.
+---However, when examining by lot, Lot #3 does show a variance of 170.27, which is the only sub-group showing a difference.
+---The data as a whole shows a variance of 62.29.  (findings in tabular format can be replicated using the Rscript).
+
+
+Part 3:  SUSPENSION COIL COMPARISON TO POPULATION
+
+sample_coil <- suspension %>% sample_n(50)
+> View(sample_coil)
+> View(suspension)
+> t.test((sample_coil$PSI), mu=mean((suspension$PSI))) #compare sample versus pop means one-sample t-test
+
+	One Sample t-test
+
+data:  (sample_coil$PSI)
+t = 0.39861, df = 49, p-value = 0.6919
+alternative hypothesis: true mean is not equal to 1498.78
+95 percent confidence interval:
+ 1497.083 1501.317
+sample estimates:
+mean of x 
+   1499.2 
+   
+--The findings demonstrate that the sample PSI does not vary significantly from the popuplation, as p > 0.05 (p-value = 0.6919)
+
+
+PART FOUR--MY OWN STUDY
+
+CHALLENGE PART FOUR: MY OWN EXPERIMENTAL DESIGN
+A/B (control/experimental design)-determinants of fuel economy/MechaCar vs. the “Others”
+PART A OF THE STUDY/explore differences using t-tests:
+
+The main question: does MechaCar outperform the competition in MPG?
+
+Summary statistics of these factors will be performed first to show how the independent variables are distributed in the two samples: mean, median, SD, and variance.
+
+Our original analysis using multiple regression showed that only car length and ground clearance were significant predictors of MPG.
+We will conduct a randomized clinical trial of MechaCar’s performance data compared to a randomly selected control group of other car brands. 
+Because the MechaCar data shows such a wide variation on the key factors we which to examine in terms of MPG, we will select a random sample from nationally published data for other car manufacturers. 
+Variables to be included: car length, car weight, AWD, spoiler angle, and ground clearance, and MPG. 
+
+Randomization should control for variation in the predictor variables.  
+Then, we will conduct a two-sample, one-tailed test of means to determine if the MPG for MechaCar is significantly higher than competitor cars.
+
+
+
+Part Two: Multiple Regression Analysis
+
+Factors to consider are vehicle weight, vehicle length, spoiler angle, ground clearance and AWD present or not as they relate to MPG.  
+ 
+Our goal is to answer the question, given other factors that we know, such as vehicle length, spoiler angle and ground clearance: 
+is MechaCar’s fuel economy significantly better than the competitors' cars, and what are the other factors that predict MPG?
+
+We will use multiple regression, with car brand as a dummy variable (1-MechaCar vs. 0-competitors).  Car brand will be one of the predictor variables.
+Part two takes a more in-depth look at the two samples using multiple regression, with a dummy variable that designates: 1-MechaCar/experimental group vs. 0-other car brands/control group and a dummy variable of AWD present as 1 and not present as 0.  
+Given the original study, we would only consider car length and ground clearance as predictors for the first model. 
+Depending on the R-square and the significance of the beta coefficients, there may be a need to construct another model, using the other variables as predictors.
+
+Based on preliminary multiple regression analysis of the MechaCar data, we found that only ground clearance and vehicle length were significant predictors of MPG; 
+the other factors did not contribute significantly to R-squared, nor were the beta coefficients statistically significant.  
+Removal of the non-significant factors reduced the R-square to .67 from 71., not an appreciable decline.
+
+In this case, we are creating a model to predict differences in mpg based on whether the car is a MechaCar or not, vehicle length, and ground clearance.  
+Should the car brand be the strongest determining factor in terms of the beta coefficient and examination of the R-squared shows that the other factors are not significant, we will have to
+consider other unmeasured factors. We may be faced with going back to the laboratory to determine possibly unmeasured factors that are affecting MPG.
+
+
+
+
+
+
+
+
